@@ -1,2 +1,3 @@
 .raw/
+.secret.mk
 out/
