@@ -42,43 +42,7 @@ END {
 }
 
 function getScope(class) {
-    scope = "L"
-    if (match(class, /[A-Z]/)) {
-        scope = "G"
-    }
-    return scope
-}
-
-function tfrmSource(src) {
-    if (match(src, /:[0-9]+$/)) {
-        if (match(src, /[.](s|S):[0-9]+$/)) {
-            # remove line number for asm src
-            sub(/:[0-9]+$/, "", src)
-        } 
-        else {
-            # invalid src, non asm with line number
-            # sometimes the .c file is invalid at init section
-            src = ""
-        }
-    }
-    return src
-}
-
-function tfrmSize(curr_addr, prev_addr, prev_size) {
-    size = 0
-
-    if (curr_addr == prev_addr) {
-        # assign same size for same address
-        size = prev_size
-    } 
-    else if (prev_addr > curr_addr) {
-        # calculate address difference
-        prv_addr = hexToDec(prev_addr)
-        cur_addr = hexToDec(curr_addr)
-        size = prv_addr - cur_addr
-    }
-
-    return size
+    return match(class, /[A-Z]/) ? "G" : "L"
 }
 
 function removeSuffix(name) {

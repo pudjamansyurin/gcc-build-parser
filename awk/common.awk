@@ -4,7 +4,8 @@ function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
 function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
 function trim(s)  { return rtrim(ltrim(s)); }
 
-function ispath(s) { return match( s, /^[.]*\// ) }
+function isPath(s) { return match( s, /^[.]*\// ) }
+function isLibPath(path) { return match(path, /[.]a\(.*[.].\)$/) }
 
 function decToHex(dec) { return sprintf("%08x", dec) }
 function hexToDec(hex) {
@@ -12,6 +13,11 @@ function hexToDec(hex) {
         hex = sprintf("0x%s", hex)
     }
     return strtonum(hex)
+}
+function hexToHex(str) {
+    str = hexToDec(str)
+    str = decToHex(str)
+    return str
 }
 
 function getStrBetween(str, start, stop) {
@@ -26,10 +32,6 @@ function getStrBetween(str, start, stop) {
     line = substr(str, i_start+1, i_stop-2)
 
     return line
-}
-
-function isArray(x) {
-  return length(x) > 0 && length(x "") == 0
 }
 
 function call(cmd) {
@@ -51,10 +53,7 @@ function getFileFromPath(path) {
 
 function getLastPathDir(path) {
     n = split(path, arr, "/")
-    file = arr[n]
-    if (!file) {
-        file = arr[n-1]
-    }
+    file = arr[n] ? arr[n] : arr[n-1]
     sub("_", " ", file)
     return toupper(file)
 }

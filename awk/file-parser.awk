@@ -57,19 +57,13 @@ function addAreaSize(area, size, src, kind) {
     }
 }
 
-function getAreaType(mem, flag, use_rom) {
+function getAreaType(mem, flag, irom) {
     area = "debug"
     if ("ROM" == mem) {
-        area = "ro_data"
-        if (match(flag, /X/)) {
-            area = "code"
-        }
+        area = match(flag, /X/) ? "code" : "ro_data"
     }
     else if ("RAM" == mem) {
-        area = "zi_data"
-        if (use_rom) {
-            area = "rw_data"
-        }
+        area = irom ? "rw_data" : "zi_data"
     }
     return area
 }
@@ -79,23 +73,28 @@ function prepareFile() {
         mem = SECTION_ARR[s]["mem"]
         fill = SECTION_ARR[s]["fill"]
         flag = SECTION_ARR[s]["flag"]
-        use_rom = SECTION_ARR[s]["use_rom"]
+        irom = SECTION_ARR[s]["irom"]
 
-        area = getAreaType(mem, flag, use_rom)
+        area = getAreaType(mem, flag, irom)
         addAreaSize(area, fill)
 
         for (g in SECTION_ARR[s]["group"]) {
             size = SECTION_ARR[s]["group"][g]["size"]
             src = SECTION_ARR[s]["group"][g]["src"]
-            if (match(src, /\(.*[.].\)$/)) {
-                kind = "Library"
-            } else {
-                kind = "Object"
-            }
-
+            kind = isLibPath(src) ? "Library" : "Object"
             addAreaSize(area, size, src, kind)
         }
     }
+}
+
+function getAreaLine(code, ro, rw, zi, debug) {
+    txt = ""
+    txt = txt sprintf("%10d ", code)
+    txt = txt sprintf("%10d ", ro)
+    txt = txt sprintf("%10d ", rw)
+    txt = txt sprintf("%10d ", zi)
+    txt = txt sprintf("%10d ", debug)
+    return txt
 }
 
 function getAreaSize() {
@@ -108,54 +107,46 @@ function getAreaSize() {
         area_arr[area] += FILL_ARR[area]
     }
     
-    txt = ""
-    txt = txt sprintf("%10d ", area_arr["code"])
-    txt = txt sprintf("%10d ", area_arr["ro_data"])
-    txt = txt sprintf("%10d ", area_arr["rw_data"])
-    txt = txt sprintf("%10d ", area_arr["zi_data"])
-    txt = txt sprintf("%10d ", area_arr["debug"])
+    code = area_arr["code"]
+    ro = area_arr["ro_data"]
+    rw = area_arr["rw_data"]
+    zi = area_arr["zi_data"]
+    debug = area_arr["debug"]
+    
+    txt = getAreaLine(code, ro, rw, zi, debug)
     txt = txt sprintf("  %-22s\n", "Totals")
+
     return txt
 }
 
-function getAreaSizeIn(kind) {
-    txt = ""
-    
+function getAreaSizeIn(kind) {    
     if ("Padding" == kind) {
         code = FILL_ARR["code"]
+        ro = FILL_ARR["ro_data"]
+        rw = FILL_ARR["rw_data"]
+        zi = FILL_ARR["zi_data"]
         debug = FILL_ARR["debug"]
-        ro_data = FILL_ARR["ro_data"]
-        rw_data = FILL_ARR["rw_data"]
-        zi_data = FILL_ARR["zi_data"]
     } 
     else {
         code = TOTAL_ARR[kind]["code"]
+        ro = TOTAL_ARR[kind]["ro_data"]
+        rw = TOTAL_ARR[kind]["rw_data"]
+        zi = TOTAL_ARR[kind]["zi_data"]
         debug = TOTAL_ARR[kind]["debug"]
-        ro_data = TOTAL_ARR[kind]["ro_data"]
-        rw_data = TOTAL_ARR[kind]["rw_data"]
-        zi_data = TOTAL_ARR[kind]["zi_data"]
     }
     
-    txt = txt sprintf("%10d ", code)
-    txt = txt sprintf("%10d ", ro_data)
-    txt = txt sprintf("%10d ", rw_data)
-    txt = txt sprintf("%10d ", zi_data)
-    txt = txt sprintf("%10d ", debug)
+    txt = getAreaLine(code, ro, rw, zi, debug)
     txt = txt sprintf("  %-22s\n", kind" Totals")
-
     txt = txt "-------------------------------------------------------------------------------\n"
+    
     return txt
 }
 
 function getFileSizeIn(kind) {
-    title = kind
-    if ("Library" == kind) {
-        title = kind " Member"
-    }
-    txt = sprintf("%10s %10s %10s %10s %10s  %-23s\n", "Code", "RO Data", "RW Data", "ZI Data", "Debug", title" Name")
+    txt = sprintf("%10s %10s %10s %10s %10s  %-23s\n", "Code", "RO Data", "RW Data", "ZI Data", "Debug", kind" Name")
 
     for (src in SIZE_ARR) {
-        lib = match(src, /[.]a\(.*[.].\)$/)
+        lib = isLibPath(src)
         if (kind == "Object") {
             if (lib) {
                 continue
@@ -166,17 +157,18 @@ function getFileSizeIn(kind) {
             }
         }
 
-        txt = txt sprintf("%10d ", SIZE_ARR[src]["code"])
-        txt = txt sprintf("%10d ", SIZE_ARR[src]["ro_data"])
-        txt = txt sprintf("%10d ", SIZE_ARR[src]["rw_data"])
-        txt = txt sprintf("%10d ", SIZE_ARR[src]["zi_data"])
-        txt = txt sprintf("%10d ", SIZE_ARR[src]["debug"])
+        code = SIZE_ARR[src]["code"]
+        ro = SIZE_ARR[src]["ro_data"]
+        rw = SIZE_ARR[src]["rw_data"]
+        zi = SIZE_ARR[src]["zi_data"]
+        debug = SIZE_ARR[src]["debug"]
 
         file = getFileFromPath(src)
-        if (match(src, /[.]a\(.*[.].\)$/)) {
+        if (lib) {
             sub(/\(.*[.].\)$/, "", src)
         }
 
+        txt = txt getAreaLine(code, ro, rw, zi, debug)
         txt = txt sprintf(" %-23s", file)
         txt = txt sprintf("  %s", src)
         txt = txt "\n"

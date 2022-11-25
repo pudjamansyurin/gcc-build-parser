@@ -8,7 +8,7 @@ BEGIN {
 }
 
 ($1~/^[0-9]+$/) && ($2~/^[0-9]+$/) && ($3~/^[0-9]+$/) && ($4~/^[0-9]+$/) && ($5~/^[0-9]+$/) {
-    if (ispath($7)) {
+    if (isPath($7)) {
         src = $7
         SIZE_ARR[src]["code"] = $1
         SIZE_ARR[src]["ro_data"] = $2
@@ -88,42 +88,37 @@ function getTotal(type) {
     rom += TOTAL_ARR[type]["rw_data"]
     ram  = TOTAL_ARR[type]["rw_data"]
     ram += TOTAL_ARR[type]["zi_data"]
-    title = toupper(type)
 
-    txt = ""
-    txt = txt "------------------------------------------------------------------------------\n"
-    txt = txt sprintf("%-20s %-35s %10s %10s\n", "", "TOTAL "title, rom, ram)
+    txt = "------------------------------------------------------------------------------\n"
+    txt = txt sprintf("%-20s %-35s %10s %10s\n", "", "TOTAL "toupper(type), rom, ram)
 
     return txt
 }
 
 function getModuleReport(mod) {
-    txt = ""
+    module = getLastPathDir(mod)
+    trom = 0
+    tram = 0
 
-    mod_name = getLastPathDir(mod)
-    total["ROM"] = 0
-    total["RAM"] = 0
-
-    txt = txt "------------------------------------------------------------------------------\n"
+    txt = "------------------------------------------------------------------------------\n"
     for (src in FILTERED_ARR[mod]) {
         if (!isRelatedFile(mod, src)) {
             continue
         }
 
         rom = FILTERED_ARR[mod][src]["ROM"]
-        total["ROM"] += rom
         ram = FILTERED_ARR[mod][src]["RAM"]
-        total["RAM"] += ram
+        trom += rom
+        tram += ram
 
         file = getFileFromPath(src)
+        txt = txt sprintf("%-20s %-35s %10s %10s\n", module, file, rom, ram)
 
-        txt = txt sprintf("%-20s %-35s %10s %10s\n", mod_name, file, rom, ram)
-
-        if (mod_name) {
-            mod_name = ""
+        if (module) {
+            module = ""
         }
     }
-    txt = txt sprintf("%-20s %-35s %10s %10s\n", "", "", total["ROM"], total["RAM"])
+    txt = txt sprintf("%-20s %-35s %10s %10s\n", "", "", trom, tram)
 
     return txt
 }
@@ -134,7 +129,7 @@ function getModulesReport() {
     txt = txt "==============================================================================\n"
     txt = txt "                                 MODULE SIZE                                  \n"
     txt = txt "==============================================================================\n"
-    txt = txt sprintf("%-20s %-35s %10s %10s\n", "Module", "File Name", "ROM Size", "RAM Size")
+    txt = txt sprintf("%-20s %-35s %10s %10s\n", "Module", "Object Name", "ROM Size", "RAM Size")
     for (mod in FILTERED_ARR) {
         if (MOD_OTHER != mod) {
             txt = txt getModuleReport(mod)

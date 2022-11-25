@@ -6,7 +6,7 @@ BEGIN {
 (FILENAME == SECTION) {
     section = $1
     SECTION_ARR[section]["mem"] = $2
-    SECTION_ARR[section]["use_rom"] = $3
+    SECTION_ARR[section]["irom"] = $3
     SECTION_ARR[section]["flag"] = $6
     next
 }
@@ -99,7 +99,7 @@ SECTION && (2 == NF || 5 == NF) && ($1~/0x/) && ($2~/0x/) {
 
 # 1 column - separated group line
 (1 == NF) && ($0~/^[ ]/) && ($1 !~ /^[*]/) {
-    GROUP = getGroupName($1)
+    GROUP = getUniqueGroupName($1)
     next
 }
 
@@ -111,7 +111,7 @@ GROUP && (3 == NF) && ($1~/0x/) && ($2~/0x/) && ($3~/.*[.].*$/) {
 
 # 4 column - complete group line
 (4 == NF) && ($0~/^[ ]/) && ($2~/0x/) && ($3~/0x/) && ($4~/.*[.].*$/) {
-    GROUP = getGroupName($1)
+    GROUP = getUniqueGroupName($1)
     setGroup(SECTION, GROUP, $2, $3, $4)
     next
 }
@@ -122,9 +122,8 @@ GROUP && (3 == NF) && ($1~/0x/) && ($2~/0x/) && ($3~/.*[.].*$/) {
 
 (2 == NF) && ($1~/0x/) && ($2 !~ /0x/) {
     symbol = $2
-    addr = hexToDec($1)
-    addr = decToHex(addr)
-    setGroupSymbol(SECTION, GROUP, addr, symbol)
+    addr = hexToHex($1)
+    setSymbol(SECTION, GROUP, addr, symbol)
     next
 }
 
@@ -134,32 +133,24 @@ END {
 }
 
 function setCommon(name, size, src) {
-    size = hexToDec(size)
-    COMMON_ARR[name]["size"] = size
+    COMMON_ARR[name]["size"] = hexToDec(size)
     COMMON_ARR[name]["src"] = src
 }
 
 function setSection(section, addr, size) {
-    addr = hexToDec(addr)
-    addr = decToHex(addr)
-    size = hexToDec(size)
-    SECTION_ARR[section]["addr"] = addr
-    SECTION_ARR[section]["size"] = size
+    SECTION_ARR[section]["addr"] = hexToHex(addr)
+    SECTION_ARR[section]["size"] = hexToDec(size)
     SECTION_ARR[section]["fill"] = 0
 }
 
 function setGroup(section, name, addr, size, src) {
-    addr = hexToDec(addr)
-    addr = decToHex(addr)
-    size = hexToDec(size)
-
-    SECTION_ARR[section]["group"][name]["addr"] = addr
-    SECTION_ARR[section]["group"][name]["size"] = size
+    SECTION_ARR[section]["group"][name]["addr"] = hexToHex(addr)
+    SECTION_ARR[section]["group"][name]["size"] = hexToDec(size)
     SECTION_ARR[section]["group"][name]["src"] = src
     SECTION_ARR[section]["group"][name]["symbol_cnt"] = 0
 }
 
-function setGroupSymbol(section, group, addr, symbol) {
+function setSymbol(section, group, addr, symbol) {
     group_size = SECTION_ARR[section]["group"][group]["size"]
     group_addr = SECTION_ARR[section]["group"][group]["addr"]
 
@@ -185,16 +176,15 @@ function setGroupSymbol(section, group, addr, symbol) {
     SECTION_ARR[section]["group"][group]["symbol_cnt"]++
 }
 
-function getGroupName(group) {
-    # add numeric suffix
+function getUniqueGroupName(group) {
     if (SEEN[group]++) {
         group = group"."SEEN[group]
     }
     return group
 }
 
-function getSymbolFromGroup(section) {
-    name = section
+function getSymbolFromGroup(group) {
+    name = group
 
     # (any).name
     if (!match(name, /^([.][a-zA-Z0-9_]+)([.][0-9]+)$/)) { 
@@ -236,7 +226,7 @@ function prepareSymbol() {
             if (0 == SECTION_ARR[s]["group"][g]["symbol_cnt"]) {
                 addr = SECTION_ARR[s]["group"][g]["addr"]
                 symbol = getSymbolFromGroup(g)
-                setGroupSymbol(s, g, addr, symbol)
+                setSymbol(s, g, addr, symbol)
             }
 
             symbol_cnt = SECTION_ARR[s]["group"][g]["symbol_cnt"]

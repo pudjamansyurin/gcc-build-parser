@@ -70,10 +70,10 @@ function getSymbolByType(type) {
     txt = txt "===========================================================================\n"
     txt = txt sprintf("                             %10s LIST                               \n", toupper(title))
     txt = txt "===========================================================================\n"
-    txt = txt sprintf("%-36s %8s %5s  %-22s\n", title" Name", "Address", "Size", "File")
+    txt = txt sprintf("%-36s %8s %5s  %-22s\n", title" Name", "Address", "Size", "Object Name")
 
     for (s in SECTION_ARR) {
-        if (match(s, /^(.debug)/)) {
+        if ("DBG" == SECTION_ARR[s]["mem"]) {
             continue
         }
 
@@ -83,6 +83,7 @@ function getSymbolByType(type) {
 
             for (a in SECTION_ARR[s]["group"][g]["symbol"]) {
                 typ = SECTION_ARR[s]["group"][g]["symbol"][a]["type"]
+                
                 if (type == typ) {
                     name = SECTION_ARR[s]["group"][g]["symbol"][a]["name"]
                     size = SECTION_ARR[s]["group"][g]["symbol"][a]["size"]

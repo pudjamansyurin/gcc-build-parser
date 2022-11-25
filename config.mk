@@ -1,19 +1,19 @@
 -include ./.secret.mk
 
-MKDIR 		= mkdir
-ECHO 		= echo
-CP 			= cp
-RM 			= rm
-AWK 		= awk
-TEE			= tee
-TAC			= tac
-CAT 		= cat
-CUT			= cut
-SORT 		= sort
+AWK 		?= awk
+MKDIR 		?= mkdir
+ECHO 		?= echo
+CP 			?= cp
+RM 			?= rm
+TEE			?= tee
+TAC			?= tac
+CAT 		?= cat
+CUT			?= cut
+SORT 		?= sort
 
-NM 			= $(TOOLCHAIN)nm
-SIZE 		= $(TOOLCHAIN)size
-READELF 	= $(TOOLCHAIN)readelf
+NM 			?= $(TOOLCHAIN)nm
+SIZE 		?= $(TOOLCHAIN)size
+READELF 	?= $(TOOLCHAIN)readelf
 
 AWK_PATH 			= awk
 COMMON_AWK 			= $(AWK_PATH)/common.awk
@@ -41,7 +41,7 @@ SYMBOL_DWARF_OUT 	= $(OUT_PATH)/symbol-dwarf.txt
 SYMBOL_READELF_OUT 	= $(OUT_PATH)/symbol-readelf.txt
 SYMBOL_MAP_OUT 		= $(OUT_PATH)/symbol-map.txt
 
-REPORT_PATH 		= report
+REPORT_PATH 		?= report
 SYMBOL_LIST			= $(REPORT_PATH)/symbol-list.txt
 FILE_LIST			= $(REPORT_PATH)/file-list.txt
 MODULE_LIST			= $(REPORT_PATH)/module-list.txt

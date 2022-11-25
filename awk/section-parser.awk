@@ -61,7 +61,7 @@ END {
 }
 
 function isSectionUseROM(name) {
-    use_rom = 0
+    irom = 0
 
     for (segment in SEGMENT_ARR) {
         rom = SEGMENT_ARR[segment]["rom"]
@@ -70,18 +70,18 @@ function isSectionUseROM(name) {
             for (i in SEGMENT_ARR[segment]["section"]) {
                 section = SEGMENT_ARR[segment]["section"][i]
                 if (section == name) {
-                    use_rom = 1
+                    irom = 1
                     break
                 }
             }
         }
 
-        if (use_rom) {
+        if (irom) {
             break
         }
     }
 
-    return use_rom
+    return irom
 }
 
 function getMemType(flag) {
@@ -89,12 +89,10 @@ function getMemType(flag) {
         flag = ""
     }
 
-    mem = "DBG"
     if (match(flag, /A/)) {
-        mem = "ROM"
-        if (match(flag, /W/)) {
-            mem = "RAM"
-        }
+        mem = match(flag, /W/) ? "RAM" : "ROM"
+    } else {
+        mem = "DBG"
     }
     
     return mem
