@@ -1,3 +1,4 @@
 .raw/
+.out/
+report/
 .secret.mk
-out/

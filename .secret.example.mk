@@ -1,5 +1,5 @@
-ELF_INPUT 	= something.elf
-MAP_INPUT 	= something.map
+ELF_FILE 	= something.elf
+MAP_FILE 	= something.map
 
 TOOLCHAIN	= arm-none-eabi-
 

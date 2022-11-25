@@ -4,6 +4,8 @@ function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
 function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
 function trim(s)  { return rtrim(ltrim(s)); }
 
+function ispath(s) { return match( s, /^[.]*\// ) }
+
 function decToHex(dec) { return sprintf("%08x", dec) }
 function hexToDec(hex) {
     if (!match(hex, /^0x/)) {
@@ -35,4 +37,24 @@ function call(cmd) {
     cmd | getline resp
     close(cmd)
     return resp
+}
+
+function getFileFromPath(path) {
+    n = split(path, arr, "/")
+    file = arr[n]
+    if (match(file, /[.]a\(.*[.].\)$/)) {
+        sub(/^.*\(/, "", file)
+        sub(/\)$/, "", file)
+    }
+    return file
+}
+
+function getLastPathDir(path) {
+    n = split(path, arr, "/")
+    file = arr[n]
+    if (!file) {
+        file = arr[n-1]
+    }
+    sub("_", " ", file)
+    return toupper(file)
 }
