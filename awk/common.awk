@@ -54,6 +54,7 @@ function getFileFromPath(path) {
 function getLastPathDir(path) {
     n = split(path, arr, "/")
     file = arr[n] ? arr[n] : arr[n-1]
-    sub("_", " ", file)
-    return toupper(file)
+    file = toupper(file)
+    gsub("_", " ", file)
+    return file
 }
