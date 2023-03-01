@@ -37,21 +37,21 @@ all: $(ELF_FILE) nm-info readelf-info size-info
 
 nm-info: $(ELF_FILE)
 	@$(ECHO) 'Invoking: NM (symbol listing)'
-	$(NM) -l -S -n -f sysv $(ELF_FILE) > $(NM_SYMBOL_RAW)
+	@$(NM) -l -S -n -f sysv $(ELF_FILE) > $(NM_SYMBOL_RAW)
 	@$(ECHO) 'Finished building: $@'
 	@$(ECHO) ' '
 	
 readelf-info: $(ELF_FILE)
 	@$(ECHO) 'Invoking: Readelf (ELF info listing)'
-	$(READELF) -l -S $(ELF_FILE) > $(READELF_SECTION_RAW)
-	$(READELF) -s $(ELF_FILE) > $(READELF_SYMBOL_RAW)
-	$(READELF) --debug-dump=info $(ELF_FILE) > $(DWARF_SYMBOL_RAW)
+	@$(READELF) -l -S $(ELF_FILE) > $(READELF_SECTION_RAW)
+	@$(READELF) -s $(ELF_FILE) > $(READELF_SYMBOL_RAW)
+	@$(READELF) --debug-dump=info $(ELF_FILE) > $(DWARF_SYMBOL_RAW)
 	@$(ECHO) 'Finished building: $@'
 	@$(ECHO) ' '
 
 size-info: $(ELF_FILE)
 	@$(ECHO) 'Invoking: Size (section size listing)'
-	$(SIZE) $(ELF_FILE) > $(SIZE_RAW)
+	@$(SIZE) $(ELF_FILE) > $(SIZE_RAW)
 	@$(ECHO) 'Finished building: $@'
 	@$(ECHO) ' '
 	
